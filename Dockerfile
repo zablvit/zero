@@ -1,11 +1,9 @@
-FROM golang as src
+FROM tomasbasham/nasm as builder
 
-COPY zero.go .
-ARG GOOS=linux
-ARG CGO_ENABLED=0
-
-RUN go build -ldflags '-s -w' -a -o /zero
+WORKDIR /tmp/app
+COPY zero.asm .
+RUN nasm -f bin -o zero zero.asm && chmod +x zero
 
 FROM scratch
-COPY --from=src /zero /zero
+COPY --from=builder /tmp/app/zero zero
 CMD ["/zero"]
